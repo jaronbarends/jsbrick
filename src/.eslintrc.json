@@ -1,0 +1,41 @@
+{
+    "env": {
+        "browser": true,
+        "es6": true,
+        "node": true
+    },
+    "extends": "eslint:recommended",
+    "parserOptions": {
+        "sourceType": "module"
+    },
+    "rules": {
+        "indent": [
+            "warn",
+            "tab"
+        ],
+        "quotes": [
+            "error",
+            "single"
+        ],
+        "semi": [
+            "error",
+            "always"
+        ],
+        "no-unused-vars": [
+            "warn",
+            "local"
+        ],
+        "no-console": [
+            "warn"
+        ],
+        "no-extra-semi": [
+        ]
+    },
+    "globals": {
+        "jQuery": "true",
+        "d3": "true",
+        "dataLayer": "true",
+        "dataLayerObject": "true",
+        "_gaq": "true"
+    }
+}
