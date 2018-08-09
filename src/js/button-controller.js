@@ -297,7 +297,7 @@
 	* @returns {undefined}
 	*/
 	const init = function() {
-		window.mySBrick = window.mySBrick || new SBrickExtended();
+		window.mySBrick = window.mySBrick || new JSBrick();
 		mySBrick = window.mySBrick;
 
 		initInfoControls();

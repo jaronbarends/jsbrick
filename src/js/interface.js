@@ -191,7 +191,8 @@
 	* @returns {undefined}
 	*/
 	const init = function() {
-		window.mySBrick = window.mySBrick || new SBrickExtended();
+		// window.mySBrick = window.mySBrick || new SBrickExtended();
+		window.mySBrick = window.mySBrick || new JSBrick();
 		mySBrick = window.mySBrick;
 		connectScreen = document.getElementById('connect-screen');
 		connectBtn = document.getElementById('connect-btn');
