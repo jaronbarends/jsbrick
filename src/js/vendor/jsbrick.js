@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2016-17 Francesco Marino
- *
- * @author Francesco Marino <francesco@360fun.net>
- * @website www.360fun.net
+ * Based on sbrick.js https://github.com/360fun/sbrick.js
+ *	Copyright (c) 2016-17 Francesco Marino
+ *	author Francesco Marino <francesco@360fun.net>
+ *	website www.360fun.net
  *
  * Requires bluetooth.js and promise-queue library
  * https://github.com/360fun/bluetooth.js
@@ -14,10 +14,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-let SBrick = (function() {
+let JSBrick = (function() {
 	'use strict';
 
-	const ID_SBRICK                             = "SBrick";
 	const FIRMWARE_COMPATIBILITY                = 4.17;
 
 	const UUID_SERVICE_DEVICEINFORMATION        = "device_information";
@@ -82,13 +81,14 @@ let SBrick = (function() {
 	const T_KA  = 300; // Time interval for the keepalive loop (must be < 500ms - watchdog default)
 	const T_PVM = 500; // Time delay for PVM completion: the registry is update approximately 5 times per second (must be > 200ms)
 
-	// Sbrick class definition
-	class SBrick {
+
+	// JSbrick class definition
+	class JSBrick {
 
 		// CONSTRUCTOR
 
 		/**
-		* Create a new instance of the SBrick class (and accordingly also WebBluetooth)
+		* Create a new instance of the JSBrick class (and accordingly also WebBluetooth)
 		* @param {string} sbrick_name - The name of the sbrick
 		*/
 		constructor( sbrick_name ) {
@@ -278,7 +278,7 @@ let SBrick = (function() {
 		* Send drive command
 		* @param {object} portObj - {portId, direction, power}
 		*		portId: {number} The index (0-3) of the port to update in the this.ports array
-		*		direction: {hexadecimal number} The drive direction (0x00, 0x01 - you can use the constants SBrick.CLOCKWISE and SBrick.COUNTERCLOCKWISE)
+		*		direction: {hexadecimal number} The drive direction (0x00, 0x01 - you can use the constants JSBrick.CLOCKWISE and JSBrick.COUNTERCLOCKWISE)
 		*		power: {number} - The power level for the drive command 0-255
 		* @returns {promise returning object} - Returned object: portId, direction, power
 		*/
@@ -830,6 +830,6 @@ let SBrick = (function() {
 
 	}
 
-	return SBrick;
+	return JSBrick;
 
 })();

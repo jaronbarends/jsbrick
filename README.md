@@ -4,10 +4,13 @@ Adapted version of [sbrick.js](https://github.com/360fun/sbrick.js).
 
 ## Requirements
 
-* Requires sbrick.js, bluetooth.js and promise-queue library
+* Requires bluetooth.js and promise-queue library
 * https://github.com/360fun/sbrick.js
 * https://github.com/360fun/bluetooth.js
 * https://github.com/azproduction/promise-queue
+
+If you want to be able to develop locally on a machine that doesn't support the web bluetooth api, also include a dummy api:
+* https://github.com/jaronbarends/bluetooth-dummy-js
 
 ## Getting started
 

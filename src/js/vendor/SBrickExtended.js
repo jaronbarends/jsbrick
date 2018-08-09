@@ -94,7 +94,7 @@ let SBrickExtended = (function() {
 
 	//-- Start SBrickExtended class definition
 
-		class SBrickExtended extends SBrick {
+		class SBrickExtended extends JSBrick {
 
 			// CONSTRUCTOR
 

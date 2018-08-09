@@ -5,7 +5,7 @@
 (() => {
 
 	// (optional) tell jshint about globals (they should remain commented out)
-	/* globals SBrick */ //Tell jshint someGlobalVar exists as global var
+	/* globals JSBrick */ //Tell jshint JSBrick exists as global var
 
 	const SBRICKNAME = 'SBrick';
 
@@ -179,6 +179,7 @@
 		const url = window.location.href;
 		if (url.indexOf('http') !== 0 || url.indexOf('localhost') > -1) {
 			enableDummyMode();
+			console.warn('NOTE: Using bluetooth-dummy mode');
 		}
 	};
 
