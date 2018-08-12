@@ -104,7 +104,6 @@
 	const sensorchangeHandler = function(e) {
 		const sensorData = e.detail,
 			sensorType = sensorData.type;// tilt | motion
-			// sensorInterpration = window.sbrickUtil.getSensorInterpretation(sensorData.value, sensorType);
 			sensorInterpration = mySBrick.getSensorState(sensorData.value, sensorType);
 
 		document.getElementById('table-view__port-3-function').textContent = window.util.capitalize(sensorType);

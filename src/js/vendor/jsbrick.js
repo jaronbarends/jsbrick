@@ -17,83 +17,78 @@
 window.JSBrick = (function() {
 	'use strict';
 
-	const FIRMWARE_COMPATIBILITY                = 4.17;
+	
+	// Start general stuff that's equal for all instances, and that doesn't need to be exposed to outside world
 
-	const UUID_SERVICE_DEVICEINFORMATION        = "device_information";
-	const UUID_CHARACTERISTIC_MODELNUMBER       = "model_number_string";
-	const UUID_CHARACTERISTIC_FIRMWAREREVISION  = "firmware_revision_string";
-	const UUID_CHARACTERISTIC_HARDWAREREVISION  = "hardware_revision_string";
-	const UUID_CHARACTERISTIC_SOFTWAREREVISION  = "software_revision_string";
-	const UUID_CHARACTERISTIC_MANUFACTURERNAME  = "manufacturer_name_string";
+		const FIRMWARE_COMPATIBILITY                = 4.17;
 
-	const UUID_SERVICE_REMOTECONTROL            = "4dc591b0-857c-41de-b5f1-15abda665b0c";
-	const UUID_CHARACTERISTIC_REMOTECONTROL     = "02b8cbcc-0e25-4bda-8790-a15f53e6010f";
-	const UUID_CHARACTERISTIC_QUICKDRIVE        = "489a6ae0-c1ab-4c9c-bdb2-11d373c1b7fb";
+		const UUID_SERVICE_DEVICEINFORMATION        = "device_information";
+		const UUID_CHARACTERISTIC_MODELNUMBER       = "model_number_string";
+		const UUID_CHARACTERISTIC_FIRMWAREREVISION  = "firmware_revision_string";
+		const UUID_CHARACTERISTIC_HARDWAREREVISION  = "hardware_revision_string";
+		const UUID_CHARACTERISTIC_SOFTWAREREVISION  = "software_revision_string";
+		const UUID_CHARACTERISTIC_MANUFACTURERNAME  = "manufacturer_name_string";
 
-	const UUID_SERVICE_OTA                      = "1d14d6ee-fd63-4fa1-bfa4-8f47b42119f0";
-	const UUID_CHARACTERISTIC_OTACONTROL        = "f7bf3564-fb6d-4e53-88a4-5e37e0326063";
+		const UUID_SERVICE_REMOTECONTROL            = "4dc591b0-857c-41de-b5f1-15abda665b0c";
+		const UUID_CHARACTERISTIC_REMOTECONTROL     = "02b8cbcc-0e25-4bda-8790-a15f53e6010f";
+		const UUID_CHARACTERISTIC_QUICKDRIVE        = "489a6ae0-c1ab-4c9c-bdb2-11d373c1b7fb";
 
-	// REMOTE CONTROL COMMANDS
+		const UUID_SERVICE_OTA                      = "1d14d6ee-fd63-4fa1-bfa4-8f47b42119f0";
+		const UUID_CHARACTERISTIC_OTACONTROL        = "f7bf3564-fb6d-4e53-88a4-5e37e0326063";
 
-	// Exceptions
-	const ERROR_LENGTH  = 0x80; // Invalid command length
-	const ERROR_PARAM   = 0x81; // Invalid parameter
-	const ERROR_COMMAND = 0x82; // No such command
-	const ERROR_NOAUTH  = 0x83; // No authentication needed
-	const ERROR_AUTH    = 0x84; // Authentication error
-	const ERROR_DOAUTH  = 0x85; // Authentication needed
-	const ERROR_AUTHOR  = 0x86; // Authorization error
-	const ERROR_THERMAL = 0x87; // Thermal protection is active
-	const ERROR_STATE   = 0x88; // The system is in a state where the command does not make sense
+		// REMOTE CONTROL COMMANDS
 
-	// Commands
-	const CMD_BREAK     = 0x00; // Stop command
-	const CMD_DRIVE     = 0x01; // Drive command
-	const CMD_ADC       = 0x0F; // Query ADC
-	const CMD_ADC_VOLT  = 0x08; // Get Voltage
-	const CMD_ADC_TEMP  = 0x09; // Get Temperature
-	const CMD_PVM       = 0x2C; // Periodic Voltage Measurements
+		// Exceptions
+		const ERROR_LENGTH  = 0x80; // Invalid command length
+		const ERROR_PARAM   = 0x81; // Invalid parameter
+		const ERROR_COMMAND = 0x82; // No such command
+		const ERROR_NOAUTH  = 0x83; // No authentication needed
+		const ERROR_AUTH    = 0x84; // Authentication error
+		const ERROR_DOAUTH  = 0x85; // Authentication needed
+		const ERROR_AUTHOR  = 0x86; // Authorization error
+		const ERROR_THERMAL = 0x87; // Thermal protection is active
+		const ERROR_STATE   = 0x88; // The system is in a state where the command does not make sense
 
-	// SBrick Ports / Channels
-	const PORTS = [
-		{ portId: 0x00, channelsId: [ 0x00, 0x01 ]},
-		{ portId: 0x01, channelsId: [ 0x02, 0x03 ]},
-		{ portId: 0x02, channelsId: [ 0x04, 0x05 ]},
-		{ portId: 0x03, channelsId: [ 0x06, 0x07 ]}
-	];
+		// Commands
+		const CMD_BREAK     = 0x00; // Stop command
+		const CMD_DRIVE     = 0x01; // Drive command
+		const CMD_ADC       = 0x0F; // Query ADC
+		const CMD_ADC_VOLT  = 0x08; // Get Voltage
+		const CMD_ADC_TEMP  = 0x09; // Get Temperature
+		const CMD_PVM       = 0x2C; // Periodic Voltage Measurements
 
-	// Port Mode
-	const INPUT  = 'input';
-	const OUTPUT = 'output';
-	const BREAK  = 'break';
+		// SBrick Ports / Channels
+		const PORTS = [
+			{ portId: 0x00, channelsId: [ 0x00, 0x01 ]},
+			{ portId: 0x01, channelsId: [ 0x02, 0x03 ]},
+			{ portId: 0x02, channelsId: [ 0x04, 0x05 ]},
+			{ portId: 0x03, channelsId: [ 0x06, 0x07 ]}
+		];
 
-	// Direction
-	const CLOCKWISE        = 0x00; // Clockwise
-	const COUNTERCLOCKWISE = 0x01; // Counterclockwise
+		// Port Mode
+		const INPUT  = 'input';
+		const OUTPUT = 'output';
+		const BREAK  = 'break';
 
-	// Values limits
-	const MIN      = 0;   // No Speed
-	const MAX      = 255; // Max Speed
-	const MAX_QD   = 127; // Max Speed for QuickDrive
-	const MAX_VOLT = 9;   // Max Voltage = Full battery
+		// Direction
+		const CLOCKWISE        = 0x00; // Clockwise
+		const COUNTERCLOCKWISE = 0x01; // Counterclockwise
 
-	// Times in milliseconds
-	const T_KA  = 300; // Time interval for the keepalive loop (must be < 500ms - watchdog default)
-	const T_PVM = 500; // Time delay for PVM completion: the registry is update approximately 5 times per second (must be > 200ms)
+		// Values limits
+		const MIN      = 0;   // No Speed
+		const MAX      = 255; // Max Speed
+		const MAX_QD   = 127; // Max Speed for QuickDrive
+		const MIN_VALUE_BELOW_WHICH_MOTOR_DOES_NOT_WORK = 98;// somehow, motor does not seem to work for power values < 98
+		const MAX_VOLT = 9;   // Max Voltage = Full battery
 
+		// Times in milliseconds
+		const T_KA  = 300; // Time interval for the keepalive loop (must be < 500ms - watchdog default)
+		const T_PVM = 500; // Time delay for PVM completion: the registry is update approximately 5 times per second (must be > 200ms)
 
-
-
-
-
-
-
-
-
-
-		// Start general stuff that's equal for all instances, and that doesn't need to be exposed to outside world
 
 		/**
+		* Angles for servo motor
+		*
 		* servo motor only supports 7 angles per 90 degrees
 		* and these angles do not correspond linearly with power values
 		* for every supported angle:
@@ -103,14 +98,14 @@ window.JSBrick = (function() {
 		*	power: a value somewhere between min and max, so we're sure we're in the right range
 		*/
 		const powerAngles = [
-			{ angle: 0, power: 0, powerMin: 0, powerMax: 0},
-			{ angle: 13, power: 10, powerMin: 1, powerMax: 19},
-			{ angle: 26, power: 40, powerMin: 20, powerMax: 52},
-			{ angle: 39, power: 70, powerMin: 53, powerMax: 83},
-			{ angle: 52, power: 100, powerMin: 84, powerMax: 116},
-			{ angle: 65, power: 130, powerMin: 117, powerMax: 145},
-			{ angle: 78, power: 160, powerMin: 146, powerMax: 179},
-			{ angle: 90, power: 200, powerMin: 180, powerMax: 255}
+			{ angle: 0,		power: 0,	powerMin: 0,	powerMax: 0},
+			{ angle: 13,	power: 10,	powerMin: 1,	powerMax: 19},
+			{ angle: 26,	power: 40,	powerMin: 20,	powerMax: 52},
+			{ angle: 39,	power: 70,	powerMin: 53,	powerMax: 83},
+			{ angle: 52,	power: 100,	powerMin: 84,	powerMax: 116},
+			{ angle: 65,	power: 130,	powerMin: 117,	powerMax: 145},
+			{ angle: 78,	power: 160,	powerMin: 146,	powerMax: 179},
+			{ angle: 90,	power: 200,	powerMin: 180,	powerMax: 255}
 		];
 
 		const sensorTypes = [
@@ -132,48 +127,30 @@ window.JSBrick = (function() {
 			{ type: 'clear', 	min: 110 }// no max for clear
 		];
 
-		const MIN_VALUE_BELOW_WHICH_MOTOR_DOES_NOT_WORK = 98;// somehow, motor does not seem to work for power values < 98
-
 
 
 		/**
-		* get a type depending on which range a value is within
+		* get a sensor's type or state depending on which range its value is within
+		* (sensors return a value within a certain range; based on this range,
+		* we can determine what type of sensor it is, and what state it is in)
 		* @param {number} value - The value to check
-		* @param {array} types - An array of type-objects: { type: string, [min: number,] [max: number]}
+		* @param {array} typeOrStates - An array of type- or state-objects: { type: string, [min: number,] [max: number]}
 		* @returns {string} type - The found type | 'unknown'
 		*/
-		const _rangeValueToType = function(value, types) {
-			let type = 'unkown';
+		const _getSensorTypeOrStateByRangeValue = function(value, typeOrStates) {
+			let typeOrState = 'unkown';
 
-			types.forEach((option) => {
+			typeOrStates.forEach((option) => {
 				const {min, max} = option;
 				if ( (typeof min === 'undefined' || value >= min) && (typeof max === 'undefined' || value <= max) ) {
-					type = option.type;
+					typeOrState = option.type;
 				}
 			});
 
-			return type;
+			return typeOrState;
 		};
 
 	//-- End general stuff that's equal for all instances
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -265,6 +242,7 @@ window.JSBrick = (function() {
 					}
 				}
 			}
+
 			let options = {
 				// filter by service should work but it doesn't show any SBrick...
 				// filters: [{
@@ -282,27 +260,29 @@ window.JSBrick = (function() {
 			} else {
 				options.acceptAllDevices = true;
 			}
+
 			return this.webbluetooth.connect(options,this.SERVICES)
-			.then( () => {
-				if( this.isConnected() ) {
-					if( this._debug ) {
-						this._log( "Connected to SBrick " + this.webbluetooth.device.id );
-					}
-					// Firmware Compatibility Check
-					this.getFirmwareVersion()
-					.then( version => {
-						// version = FIRMWARE_COMPATIBILITY;
-						if( parseFloat(version) >= FIRMWARE_COMPATIBILITY ) {
-							this.keepalive = this._keepalive(this);
-						} else {
-							this._error("Firmware not compatible: please update your SBrick.");
-							this.disconnect();
+				.then( () => {
+					if( this.isConnected() ) {
+						if( this._debug ) {
+							this._log( "Connected to SBrick " + this.webbluetooth.device.id );
 						}
-					});
-				}
-			})
-			.catch( e => { this._error(e) } );
+						// Firmware Compatibility Check
+						this.getFirmwareVersion()
+						.then( version => {
+							// version = FIRMWARE_COMPATIBILITY;
+							if( parseFloat(version) >= FIRMWARE_COMPATIBILITY ) {
+								this.keepalive = this._keepalive(this);
+							} else {
+								this._error("Firmware not compatible: please update your SBrick.");
+								this.disconnect();
+							}
+						});
+					}
+				})
+				.catch( e => { this._error(e) } );
 		}
+
 
 		/**
 		* Disconnect the SBrick
@@ -334,6 +314,7 @@ window.JSBrick = (function() {
 			return this.webbluetooth && this.webbluetooth.isConnected();
 		}
 
+		
 		/**
 		* Get the SBrick's model number
 		* @returns {promise returning string}
@@ -394,9 +375,9 @@ window.JSBrick = (function() {
 				this._log('Calling drive with 3 arguments is deprecated: use 1 object {portId, direction, power} instead.');
 			}
 
-			const portId 		= portObj.portId,
-						direction = portObj.direction || CLOCKWISE,
-						power 		= ( portObj.power === undefined ) ? MAX : portObj.power
+			const portId = portObj.portId;
+			const direction = portObj.direction || CLOCKWISE;
+			const power = ( portObj.power === undefined ) ? MAX : portObj.power
 
 			return new Promise( (resolve, reject) => {
 				if( portId !== undefined && direction !== undefined && power !== undefined ) {
@@ -458,6 +439,7 @@ window.JSBrick = (function() {
 			.then( ()=> {
 				let array = [];
 				let allPorts = this._getPorts();
+
 				allPorts.forEach( (portId) => {
 					array.push( {
 						portId: portId,
@@ -470,20 +452,23 @@ window.JSBrick = (function() {
 			.then( ()=> {
 				// updating ports status
 				portObjs.forEach( (portObj) => {
-		      let portId = parseInt( portObj.portId );
-		      if (isNaN(portId)) {
-		        // the old version with port instead of portId was used
-		        portId = parseInt( portObj.port );
-		        this._log('object property port is deprecated. use portId instead.');
-		      }
-		      let port       = this.ports[portId];
-		      port.power     = Math.min(Math.max(parseInt(Math.abs(portObj.power)), MIN), MAX);
-		      port.direction = portObj.direction ? COUNTERCLOCKWISE : CLOCKWISE;
-		    });
-				// send command
-				if(this._portsIdle(this._getPorts())) {
-					// set all ports busy
-		      this._setPortsBusy(this._getPorts(), true);
+			  let portId = parseInt( portObj.portId );
+
+			  if (isNaN(portId)) {
+				// the old version with port instead of portId was used
+				portId = parseInt( portObj.port );
+				this._log('object property port is deprecated. use portId instead.');
+			  }
+
+			  let port       = this.ports[portId];
+			  port.power     = Math.min(Math.max(parseInt(Math.abs(portObj.power)), MIN), MAX);
+			  port.direction = portObj.direction ? COUNTERCLOCKWISE : CLOCKWISE;
+			});
+
+			// send command
+			if(this._portsIdle(this._getPorts())) {
+				// set all ports busy
+				this._setPortsBusy(this._getPorts(), true);
 					this.queue.add( () => {
 						let command = [];
 						this.ports.forEach( (port, index) => {
@@ -656,90 +641,80 @@ window.JSBrick = (function() {
 
 
 
+		//-- Start convenience wrappers around generic drive method --
+			
+			/**
+			* update a set of lights
+			* @param {object} data - New settings for this port {portId, power (0-100), direction}
+			* @returns {promise returning object} - { Returned object: portId, direction, power (0-255!), mode}
+			*/
+			setLights(data) {
+				data.power = Math.round(this.MAX * data.power/100);
+				return this.drive(data);
+			};
 
 
 
+			/**
+			* update a drive motor
+			* @param {object} data - New settings for this port {portId, power (0-100), direction}
+			* @returns {promise returning object} - { Returned object: portId, direction, power (0-255!), mode}
+			*/
+			setDrive(data) {
+				data.power = this.drivePercentageToPower(data.power);
+				return this.drive(data);
+			};
 
 
 
+			/**
+			* update a servo motor
+			* @param {object} data - New settings for this port {portId, angle (0-90), direction}
+			* @returns {promise returning object} - { Returned object: portId, direction, power (0-255!), mode}
+			*/
+			setServo(data) {
+				data.power = this.servoAngleToPower(data.angle);
+				return this.drive(data);
+			};
 
 
 
+			/**
+			* start stream of sensor measurements and send a sensorstart.sbrick event
+			* @param {number} portId - The id of the port to read sensor data from
+			* @returns {promise returning undefined} - The promise returned by sbrick.getSensor, but somehow that promise's data isn't returned
+			*/
+			startSensor(portId) {
+				const sensorObj = this._getSensorObj(portId);
+				sensorObj.keepAlive = true;
+
+				const data = {portId},
+					event = new CustomEvent('sensorstart.sbrick', {detail: data});
+				document.body.dispatchEvent(event);
+
+				return this._getNextSensorData(portId);
+			}
 
 
-		
-		/**
-		* update a set of lights
-		* @param {object} data - New settings for this port {portId, power (0-100), direction}
-		* @returns {promise returning object} - { Returned object: portId, direction, power (0-255!), mode}
-		*/
-		setLights(data) {
-			data.power = Math.round(this.MAX * data.power/100);
-			return this.drive(data);
-		};
+			/**
+			* stop stream of sensor measurements and send a sensorstop.sbrick event
+			* @returns {undefined}
+			*/
+			stopSensor(portId) {
+				// sensorData timeout is only set when the promise resolves
+				// but in the time the promise is pending, there is no timeout to cancel
+				// so let's manipulate a property that has to be checked before calling a new setTimeout
+				const sensorObj = this._getSensorObj(portId);
+				sensorObj.keepAlive = false;
+				const data = {portId};
 
-
-
-		/**
-		* update a drive motor
-		* @param {object} data - New settings for this port {portId, power (0-100), direction}
-		* @returns {promise returning object} - { Returned object: portId, direction, power (0-255!), mode}
-		*/
-		setDrive(data) {
-			data.power = this.drivePercentageToPower(data.power);
-			return this.drive(data);
-		};
-
-
-
-		/**
-		* update a servo motor
-		* @param {object} data - New settings for this port {portId, angle (0-90), direction}
-		* @returns {promise returning object} - { Returned object: portId, direction, power (0-255!), mode}
-		*/
-		setServo(data) {
-			data.power = this.servoAngleToPower(data.angle);
-			return this.drive(data);
-		};
-
-
-
-		/**
-		* start stream of sensor measurements and send a sensorstart.sbrick event
-		* @param {number} portId - The id of the port to read sensor data from
-		* @returns {promise returning undefined} - The promise returned by sbrick.getSensor, but somehow that promise's data isn't returned
-		*/
-		startSensor(portId) {
-			const sensorObj = this._getSensorObj(portId);
-			sensorObj.keepAlive = true;
-
-			const data = {portId},
-				event = new CustomEvent('sensorstart.sbrick', {detail: data});
-			document.body.dispatchEvent(event);
-
-			return this._getNextSensorData(portId);
-		}
-
-
-		/**
-		* stop stream of sensor measurements and send a sensorstop.sbrick event
-		* @returns {undefined}
-		*/
-		stopSensor(portId) {
-			// sensorData timeout is only set when the promise resolves
-			// but in the time the promise is pending, there is no timeout to cancel
-			// so let's manipulate a property that has to be checked before calling a new setTimeout
-			const sensorObj = this._getSensorObj(portId);
-			sensorObj.keepAlive = false;
-			const data = {portId};
-
-			const event = new CustomEvent('sensorstop.sbrick', {detail: data});
-			document.body.dispatchEvent(event);
-		};
+				const event = new CustomEvent('sensorstop.sbrick', {detail: data});
+				document.body.dispatchEvent(event);
+			};
 
 
 		/**
-		* translate servo's angle to corresponding power-value
+		* convert servo's angle to corresponding power-value
 		* @param {number} angle - The angle of the servo motor
 		* @returns {number} The corresponding power value (0-255)
 		*/
@@ -755,7 +730,7 @@ window.JSBrick = (function() {
 
 
 		/**
-		* translate servo's power to corresponding angle-value
+		* convert servo's power to corresponding angle-value
 		* @param {number} power - The current power (0-255) of the servo motor
 		* @returns {number} The corresponding angle value
 		*/
@@ -777,7 +752,7 @@ window.JSBrick = (function() {
 
 		/**
 		* drive motor does not seem to work below certain power threshold value
-		* translate the requested percentage to the actual working power range
+		* convert the requested percentage to the actual working power range
 		* @param {number} powerPerc - The requested power as percentage
 		* @returns {number}	- A value within the acutal power range
 		*/
@@ -796,7 +771,7 @@ window.JSBrick = (function() {
 
 		/**
 		* drive motor does not seem to work below certain power threshold value
-		* translate the actual power in the percentage within the actual working power range
+		* convert the actual power in the percentage within the actual working power range
 		* @returns {number} - The percentage within the actual power range
 		*/
 		drivePowerToPercentage(power) {
@@ -819,7 +794,7 @@ window.JSBrick = (function() {
 		* @returns {string} - The type: unknown (default) | tilt | motion
 		*/
 		getSensorType(ch0Value) {
-			return _rangeValueToType(ch0Value, sensorTypes);
+			return _getSensorTypeOrStateByRangeValue(ch0Value, sensorTypes);
 		};
 
 
@@ -832,9 +807,9 @@ window.JSBrick = (function() {
 			let state = 'unknown';
 
 			if (sensorType === 'motion') {
-				state = _rangeValueToType(value, motionStates);
+				state = _getSensorTypeOrStateByRangeValue(value, motionStates);
 			} else if (sensorType === 'tilt') {
-				state = _rangeValueToType(value, tiltStates);
+				state = _getSensorTypeOrStateByRangeValue(value, tiltStates);
 			}
 
 			return state;
@@ -1028,6 +1003,7 @@ window.JSBrick = (function() {
 			} );
 		}
 
+
 		/**
 		* Helper function to get ports Ids
 		* @returns {boolean}
@@ -1035,6 +1011,7 @@ window.JSBrick = (function() {
 		_getPorts() {
 			return PORTS.map( function(obj) {return obj.portId;} );
 		}
+
 
 		/**
 		* Helper function to find a port channel numbers
@@ -1044,6 +1021,7 @@ window.JSBrick = (function() {
 		_getPortChannels( portId ) {
 			return PORTS[portId].channelsId;
 		}
+
 
 		/**
 		* Get the settings of a specific port
@@ -1060,6 +1038,7 @@ window.JSBrick = (function() {
 			return data;
 		}
 
+
 		/**
 		* Error management
 		* @param {string} msg - message to print or throw
@@ -1072,6 +1051,7 @@ window.JSBrick = (function() {
 			}
 		}
 
+
 		/**
 		* Log
 		* @param {string} msg - message to print
@@ -1082,15 +1062,17 @@ window.JSBrick = (function() {
 			}
 		}
 
+
 		/**
 		* Delay promise
 		* @param {number} t - time in milliseconds
 		*/
 		_delay(t) {
 			return new Promise(function(resolve) {
-		 		setTimeout(resolve, t)
-		 	});
+				setTimeout(resolve, t)
+			});
 		}
+
 
 		/**
 		* Trigger event on body to notify listeners that a port's values have changed
@@ -1101,6 +1083,7 @@ window.JSBrick = (function() {
 			const event = new CustomEvent('portchange.sbrick', {detail: portData});
 			document.body.dispatchEvent(event);
 		}
+
 
 		/**
 		* Check if ports are busy
@@ -1115,6 +1098,7 @@ window.JSBrick = (function() {
 			});
 			return allAreIdle;
 		}
+
 
 		/**
 		* Set all ports to busy
@@ -1204,12 +1188,6 @@ window.JSBrick = (function() {
 			}
 			return sensorObj;
 		};
-
-
-
-
-
-
 
 
 	}
