@@ -64,7 +64,7 @@
 		setPageBusy();
 		setConnectScreenBusy();
 		mySBrick.connect(SBRICKNAME)
-		.then( (value) => {
+		.then( () => {
 			// SBrick now is connected
 			setPageIdle();
 			setConnectScreenIdle();
@@ -205,7 +205,7 @@
 		// Per the specs, this has to be done IN RESPONSE TO A USER ACTION
 		connectBtn.addEventListener('click', connectHandler);
 		disconnectBtn.addEventListener('click', disconnectHandler);
-		console.log('v3');
+		console.log('v6');
 	};
 
 	// kick of the script when all dom content has loaded
