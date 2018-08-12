@@ -119,7 +119,7 @@
 
 	/**
 	* handle when port has changed
-	* @param {event} e - portchange.sbrick event sent by sbrick.js event.detail: {portId, direction, power}
+	* @param {event} e - portchange.jsbrick event sent by sbrick.js event.detail: {portId, direction, power}
 	* @returns {undefined}
 	*/
 	const portchangeHandler = function(e) {
@@ -131,7 +131,7 @@
 
 	/**
 	* handle when sensor has changed
-	* @param {event} e - sensorchange.sbrick event; At this time sent by this very script; should me moved to sbrick.js
+	* @param {event} e - sensorchange.jsbrick event; At this time sent by this very script; should me moved to sbrick.js
 	* @returns {undefined}
 	*/
 	const sensorchangeHandler = function(e) {
@@ -150,7 +150,7 @@
 		mySBrick.getSensor(portId, 'wedo')
 			.then((m) => {
 				let sensorData = m;// { type, voltage, ch0_raw, ch1_raw, value }
-				const event = new CustomEvent('sensorchange.sbrick', {detail: sensorData});
+				const event = new CustomEvent('sensorchange.jsbrick', {detail: sensorData});
 				document.body.dispatchEvent(event);
 
 				clearTimeout(sensorTimer);// clear timeout within then-clause so it will always clear right before setting new one
@@ -186,7 +186,7 @@
 		sensorTimeoutIsCancelled = false;
 		getSensorData(portId);
 
-		const event = new CustomEvent('sensorstart.sbrick', {detail: {portId}});
+		const event = new CustomEvent('sensorstart.jsbrick', {detail: {portId}});
 		document.body.dispatchEvent(event);
 	};
 
@@ -201,14 +201,14 @@
 		// so let's set a var that has to be checked before calling a new setTimeout
 		sensorTimeoutIsCancelled = true;
 
-		const event = new CustomEvent('sensorstop.sbrick', {detail: {portId}});
+		const event = new CustomEvent('sensorstop.jsbrick', {detail: {portId}});
 		document.body.dispatchEvent(event);
 	};
 
 
 	/**
 	* handle starting of sensor
-	* @param {event} e - * @param {event} e - sensorstart.sbrick event; At this time sent by this very script; should me moved to sbrick.js
+	* @param {event} e - * @param {event} e - sensorstart.jsbrick event; At this time sent by this very script; should me moved to sbrick.js
 	* @returns {undefined}
 	*/
 	const sensorstartHandler = function(e) {
@@ -218,7 +218,7 @@
 
 	/**
 	* handle starting of sensor
-	* @param {event} e - * @param {event} e - sensorstop.sbrick event; At this time sent by this very script; should me moved to sbrick.js
+	* @param {event} e - * @param {event} e - sensorstop.jsbrick event; At this time sent by this very script; should me moved to sbrick.js
 	* @returns {undefined}
 	*/
 	const sensorstopHandler = function(e) {
@@ -283,10 +283,10 @@
 		sensorSwitch.addEventListener('click', toggleSensor);
 
 		// set listeners for sbrick events
-		document.body.addEventListener('portchange.sbrick', portchangeHandler);
-		document.body.addEventListener('sensorchange.sbrick', sensorchangeHandler);
-   		document.body.addEventListener('sensorstart.sbrick', sensorstartHandler);
-   		document.body.addEventListener('sensorstop.sbrick', sensorstopHandler);
+		document.body.addEventListener('portchange.jsbrick', portchangeHandler);
+		document.body.addEventListener('sensorchange.jsbrick', sensorchangeHandler);
+   		document.body.addEventListener('sensorstart.jsbrick', sensorstartHandler);
+   		document.body.addEventListener('sensorstop.jsbrick', sensorstopHandler);
 	};
 
 

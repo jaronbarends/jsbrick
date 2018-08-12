@@ -64,18 +64,18 @@
 		setPageBusy();
 		setConnectScreenBusy();
 		mySBrick.connect(SBRICKNAME)
-		.then( () => {
-			// SBrick now is connected
-			setPageIdle();
-			setConnectScreenIdle();
-			updateConnectionState();
-		} )
-		.catch( (e) => {
-			setPageIdle();
-			setConnectScreenIdle();
-			window.util.log('Caught error in SBrick.connect: ' + e);
-			updateConnectionState();
-		});
+			.then( () => {
+				// SBrick now is connected
+				setPageIdle();
+				setConnectScreenIdle();
+				updateConnectionState();
+			} )
+			.catch( (e) => {
+				setPageIdle();
+				setConnectScreenIdle();
+				window.util.log('Caught error in SBrick.connect: ' + e);
+				updateConnectionState();
+			});
 	};
 
 

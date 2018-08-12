@@ -78,7 +78,7 @@
 
 	/**
 	* handle change of port power
-	* @param {event} e - portchange.sbrick event with detail: portObjs {portId, power, direction}
+	* @param {event} e - portchange.jsbrick event with detail: portObjs {portId, power, direction}
 	* @returns {undefined}
 	*/
 	// TODO: sbrick.js does seem to send consecutive portchange events for quickDrive, instead of just 1
@@ -98,7 +98,7 @@
 
 	/**
 	* handle change of sensor value
-	* @param {event} e - sensorchange.sbrick event; At this time sent by button-controller.js; should me moved to sbrick.js
+	* @param {event} e - sensorchange.jsbrick event; At this time sent by button-controller.js; should me moved to sbrick.js
 	* @returns {undefined}
 	*/
 	const sensorchangeHandler = function(e) {
@@ -117,8 +117,8 @@
 	* @returns {undefined}
 	*/
 	const addEventListeners = function() {
-		body.addEventListener('portchange.sbrick', portchangeHandler);
-		body.addEventListener('sensorchange.sbrick', sensorchangeHandler);
+		body.addEventListener('portchange.jsbrick', portchangeHandler);
+		body.addEventListener('sensorchange.jsbrick', sensorchangeHandler);
 	};
 
 

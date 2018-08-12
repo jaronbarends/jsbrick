@@ -108,12 +108,13 @@ window.JSBrick = (function() {
 			{ angle: 90,	power: 200,	powerMin: 180,	powerMax: 255}
 		];
 
-		// Map sensor types and states to their respective ranges
+		// Map sensor types to their respective ranges
 		const sensorTypes = [
 			{ type: 'tilt',		min: 48,	max: 52},
 			{ type: 'motion',	min: 105,	max: 110}
 		];
 
+		// For tilt sensor: map tilt states to ranges
 		const tiltStates = [
 			{ type: 'up',		min: 14,	max: 18 },
 			{ type: 'right', 	min: 51,	max: 55 },
@@ -122,6 +123,7 @@ window.JSBrick = (function() {
 			{ type: 'left', 	min: 191,	max: 196 }
 		];
 
+		// For motion sensor: map distance states to ranges
 		const motionStates = [
 			{ type: 'close',				max: 60 },// no min for close
 			{ type: 'midrange',	min: 61,	max: 109 },
@@ -162,9 +164,9 @@ window.JSBrick = (function() {
 
 		/**
 		* Create a new instance of the JSBrick class (and accordingly also WebBluetooth)
-		* @param {string} sbrick_name - The name of the sbrick
+		* @param {string} sbrickName - The name of the sbrick
 		*/
-		constructor( sbrick_name ) {
+		constructor(sbrickName) {
 			this.webbluetooth = new WebBluetooth();
 
 			// check if we're not trying to connect without https - Bluetooth only works on https
@@ -173,8 +175,9 @@ window.JSBrick = (function() {
 				alert(`You need to visit this site on https in order for bluetooth to work.`)
 			}
 
-			// export constants
-			this.NAME     = sbrick_name || "";
+			// make constants available to outside world
+			// TODO: check which of these don't need to be defined in containing anonymous function
+			this.NAME     = sbrickName || "";
 			this.PORT0    = this.TOPLEFT     = PORTS[0].portId;
 			this.PORT1    = this.BOTTOMLEFT  = PORTS[1].portId;
 			this.PORT2    = this.TOPRIGHT    = PORTS[2].portId;
@@ -372,16 +375,6 @@ window.JSBrick = (function() {
 		* @returns {promise returning object} - Returned object: portId, direction, power
 		*/
 		drive( portObj ) {
-			if (typeof portObj !== 'object') {
-				// the old version with 3 params was used
-				portObj = {
-					portId: 	  arguments[0],
-					direction: 	arguments[1],
-					power: 		  arguments[2]
-				};
-				this._log('Calling drive with 3 arguments is deprecated: use 1 object {portId, direction, power} instead.');
-			}
-
 			const portId = portObj.portId;
 			const direction = portObj.direction || CLOCKWISE;
 			const power = ( portObj.power === undefined ) ? MAX : portObj.power
@@ -652,7 +645,7 @@ window.JSBrick = (function() {
 			
 			/**
 			* update a set of lights
-			* @param {object} data - New settings for this port {portId, power (0-100), direction}
+			* @param {object} data - New settings for this port {portId, power (0-100)}
 			* @returns {promise returning object} - { Returned object: portId, direction, power (0-255!), mode}
 			*/
 			setLights(data) {
@@ -687,7 +680,7 @@ window.JSBrick = (function() {
 
 
 			/**
-			* start stream of sensor measurements and send a sensorstart.sbrick event
+			* start stream of sensor measurements and send a sensorstart.jsbrick event
 			* @param {number} portId - The id of the port to read sensor data from
 			* @returns {promise returning undefined} - The promise returned by sbrick.getSensor, but somehow that promise's data isn't returned
 			*/
@@ -696,7 +689,7 @@ window.JSBrick = (function() {
 				sensorObj.keepAlive = true;
 
 				const data = {portId};
-				const event = new CustomEvent('sensorstart.sbrick', {detail: data});
+				const event = new CustomEvent('sensorstart.jsbrick', {detail: data});
 				document.body.dispatchEvent(event);
 
 				return this._getNextSensorData(portId);
@@ -704,7 +697,7 @@ window.JSBrick = (function() {
 
 
 			/**
-			* stop stream of sensor measurements and send a sensorstop.sbrick event
+			* stop stream of sensor measurements and send a sensorstop.jsbrick event
 			* @returns {undefined}
 			*/
 			stopSensor(portId) {
@@ -715,7 +708,7 @@ window.JSBrick = (function() {
 				sensorObj.keepAlive = false;
 				const data = {portId};
 
-				const event = new CustomEvent('sensorstop.sbrick', {detail: data});
+				const event = new CustomEvent('sensorstop.jsbrick', {detail: data});
 				document.body.dispatchEvent(event);
 			};
 
@@ -1087,7 +1080,7 @@ window.JSBrick = (function() {
 		* @returns {undefined}
 		*/
 		_sendPortChangeEvent( portData ) {
-			const event = new CustomEvent('portchange.sbrick', {detail: portData});
+			const event = new CustomEvent('portchange.jsbrick', {detail: portData});
 			document.body.dispatchEvent(event);
 		}
 
@@ -1151,14 +1144,14 @@ window.JSBrick = (function() {
 					// send event if the raw value of the sensor has changed
 					if (value !== sensorObj.lastValue) {
 						sensorObj.lastValue = value;
-						const changeValueEvent = new CustomEvent('sensorvaluechange.sbrick', {detail: sensorData});
+						const changeValueEvent = new CustomEvent('sensorvaluechange.jsbrick', {detail: sensorData});
 						document.body.dispatchEvent(changeValueEvent);
 					}
 
 					// send event if the state of the sensor has changed
 					if (state !== sensorObj.lastState) {
 						sensorObj.lastState = state;
-						const event = new CustomEvent('sensorchange.sbrick', {detail: sensorData});
+						const event = new CustomEvent('sensorchange.jsbrick', {detail: sensorData});
 						document.body.dispatchEvent(event);
 						
 					}

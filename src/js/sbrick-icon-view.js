@@ -70,9 +70,9 @@
 	* @returns {undefined}
 	*/
 	const addEventListeners = function() {
-		document.body.addEventListener('portchange.sbrick', portchangeHandler);
-		document.body.addEventListener('sensorstart.sbrick', sensorstartHandler);
-		document.body.addEventListener('sensorstop.sbrick', sensorstopHandler);
+		document.body.addEventListener('portchange.jsbrick', portchangeHandler);
+		document.body.addEventListener('sensorstart.jsbrick', sensorstartHandler);
+		document.body.addEventListener('sensorstop.jsbrick', sensorstopHandler);
 	};
 	
 

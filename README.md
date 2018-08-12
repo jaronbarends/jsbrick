@@ -33,11 +33,15 @@ Include required scripts
 
 
 
-### Usage
+
+
+
+
+## Usage
 
 You have to create an instance of the JSBrick class - this way is possible to connect multiple Sbricks at the same time. A lot of methods return a [promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises).
 
-#### Connecting with the SBrick
+### Connecting with the SBrick
 
 ```javascript
 let mySBrick = new JSBrick(); // create a new SBrick object
@@ -59,7 +63,7 @@ mySBrick2.connect() // show only the devices with "SBrick" in their name (e.g. a
     } );
 ```
 	
-#### Disconnecting
+### Disconnecting
 ```javascript
 mySBrick.disconnect()
     .then( ()=> {
@@ -67,14 +71,162 @@ mySBrick.disconnect()
     } );
 ```
  
-#### Check if the SBrick is connected:
+### Check if the SBrick is connected
 ```javascript
 let isConnected = mySBrick.isConnected(); // returns true or false
 ```
 
-#### Get basic SBrick Information
+## Port numbering
+
+When you want to send data to or receive data from the SBrick, you'll need to specify which of the ports you want to target. The SBrick's ports are numbered 0-3, like shown below. To make things easier, every JSBrick instance has constants for the ports's ids: `mySBrick.TOPLEFT`, `mySBrick.TOPRIGHT`, `mySBrick.BOTTOMLEFT`, `mySBrick.BOTTOMRIGHT`.
+
+          TOP    TOP
+          LEFT 0 RIGHT 2
+┌────────┐─────────────┐
+|        |             |
+|        └──────┐────────────────┐
+|               | BOTTOM  BOTTOM |
+|               | LEFT 1  RIGHT 3|
+|               |                |
+└───────────────┘────────────────┘
+
+## Controlling motors and lights
+
+The easiest way to send commands to the SBrick and to receive sensor data, is by using JSBrick's dedicated methods for each type of Lego device (drive motor, servo motor, lights, tilt sensor, motion sensor). (Note that you can attach multiple Lego devices to one port - the dedicated methods only work as expected on a port, as long as you only have one type of device on the port. If you have different devices, use the more generic `drive` method instead.)
+
+JSBrick has a few constants to make things easier to remember:  
+``mySBrick.CW`` for clockwise direction
+``mySBrick.CCW`` for counterclockwise direction
+
+### Lights
 
 ```javascript
+let data = {
+    portId: mySBrick.TOPLEFT,
+    power: 100// 0-100
+};
+mySBrick.setLights(data);
+```
+
+### Drive motor
+
+```javascript
+let data = {
+    portId: mySBrick.TOPLEFT,
+    power: 100,// 0-100
+    direction: mySBrick.CW
+};
+mySBrick.setDrive(data);
+```
+
+### Servo motor
+
+```javascript
+let data = {
+    portId: mySBrick.TOPLEFT,
+    angle: 45,// 0-90
+    direction: mySBrick.CW
+};
+mySBrick.setServo(data);
+```
+
+Be aware that the Lego's servo motors only allow 7 angles per 90°. These angles are in increments of approximately 13°, i.e. 13, 26, 39, 52, 65, 78, 90. `setServo` calculates the supported angle that's closest to the value of `data`'s `angle`-property
+
+All of these drive methods return an object with the new settings.
+
+
+## Start retrieving sensor values
+
+For both the tilt and motion sensor:
+
+```javascript
+const portId = mySBrick.TOPLEFT;
+mySbrick.startSensor(portId);
+```
+
+This will start a stream of sensor measurements. For every new measurement, a `sensorchange.jsbrick` event is dispatched on the body. You can track these values like this:
+
+```javascript
+body.addEventListener('sensorchange.jsbrick', (e) => {
+    const sensorData = e.detail;
+    const sensorType = sensorData.type;// tilt | motion
+    const sensorInterpration = mySBrick.getSensorState(sensorData.value, sensorType);
+    console.log(sensorInterpretation);
+});
+```
+
+The `sensorInterpretation` is depending on the type of sensor. Possible values:  
+For the tilt sensor: `up`, `right`, `flat`, `down`, `left`.  
+For the motion sensor: `close`, `midrange`, `clear`.  
+_(it would be better to include the sensorInterpretation in the sensorchange event. It's on my to do list :))_
+
+## Stop retrieving sensor values
+
+For both the tilt and motion sensor:
+
+```javascript
+const portId = mySBrick.TOPLEFT;
+mySbrick.stopSensor(portId);
+```
+
+
+
+Note that under the hood, the SBrick uses one single command to send data to the ports. You can send this command using JSBrick's `drive` method. To retrieve a single value from sensor,  However, JSBrick also has some convenience functions 
+
+
+There is also another command that controls all types, _quick drive_, which supposedly has lower latency.)
+
+
+## Additional events
+
+### sensorstart.sbrick
+
+Triggered on `document.body` when a stream of sensor measurements is started
+data sent with `event.detail`: `{portId}`
+
+### sensorstop.sbrick
+
+Triggered on `document.body` when a stream of sensor measurements is stopped
+data sent with `event.detail`: `{portId}`
+
+### sensorchange.sbrick
+
+Triggered when a port's sensor's state changes. (Sensors return a value; a range of values corresponds with an state.) States depend on the type of sensor.
+
+data sent with `event.detail`: `{type, voltage, ch0_raw, ch1_raw, value, state}`
+
+Possible `state` values for motion sensor:
+`close`: the sensor is within a few centimeters of an object;
+`midrange`: the sensor is within ca. 5-15 centimeters of an object;
+`clear`: there is no object within ca 15 centimeters of the sensor
+
+Possible `state` values for tilt sensor:
+`flat`, `up`, `down`, `left`, `right`
+
+### sensorvaluechange.sbrick
+
+Triggered when the value of a port's sensor changes. The sensors aren't very accurate, so most of the time you'll want to use the `sensorchange.sbrick` event instead. May come in usefull for the motion sensor. 
+
+
+
+## Getting basic SBrick Information
+
+Apart from communicating with the SBrick's four ports, you can also get some info about the SBrick itself.
+
+```javascript
+// Get battery percentage
+mySBrick.getBattery()
+    .then( percentage => {
+        console.log(percentage + '%');
+    } );
+
+// Get temperature in celsius or fahrenheit
+let fahrenheit = false; // default is false: C°
+mySBrick.getTemp(fahrenheit)
+    .then( temp => {
+        console.log(temp + fahrenheit ? ' °F' : ' °C');
+    });
+    
 mySBrick.getModelNumber().then( model => {
     console.log(model);
 });
@@ -95,6 +247,13 @@ mySBrick.getManufacturerName().then( name => {
     console.log(name);
 });
 ```
+
+
+** README IS STILL IN PROGRESS - STUFF BELOW THIS LINE ISN'T EDITED YET **
+---------------------
+
+
+
 	
 Sending a command is pretty easy and some constants will help the process:
 
@@ -104,21 +263,7 @@ Sending a command is pretty easy and some constants will help the process:
 	mySBrick.MAX	   // Maximum power for Drive (255)
 
 
-Get the Battery voltage:
 
-	mySBrick.getBattery()
-	.then( battery => {
-		alert( battery + '%' );
-	} );
-
-
-Get the SBrick internal Temperature:
-
-	let fahrenheit = true-false; // default is false: C°
-	mySBrick.getTemp(fahrenheit)
-	.then( temp => {
-		alert( temp + fahrenheit ? ' F°' : ' C°' );
-	});
 
 Get sensor data (SBrick Plus only!) - [work in progress](https://social.sbrick.com/forums/topic/511/-/view/post_id/5125):
 
@@ -148,6 +293,7 @@ Stop a specific Channel.
 Stop all Channels at once.
 	
 	mySBrick.stopAll();
+
 
 
 
@@ -213,7 +359,7 @@ mySBrick.setServo(data);
 
 Returns promise returning object `{portId, direction, power (0-255!), mode}`. (This is the promise `sbrick.drive` returns)
 
-Be aware that the Power Functions servo motors only allow 7 angles per 90°. These angles are in increments of approximately 13°, i.e. 13, 26, 39, 52, 65, 78, 90. `setServo` calculates the supported angle that's closest to the value of `data`'s `angle`-property
+
 
 
 ### `startSensor(portId)`
@@ -236,40 +382,23 @@ mySBrick.stopSensor(mySBrick.TOPLEFT);
 
 returns `undefined`
 
-## Additional events
 
-### sensorstart.sbrick
 
-Triggered on `document.body` when a stream of sensor measurements is started
-data sent with `event.detail`: `{portId}`
 
-### sensorstop.sbrick
 
-Triggered on `document.body` when a stream of sensor measurements is stopped
-data sent with `event.detail`: `{portId}`
 
-### sensorchange.sbrick
 
-Triggered when a port's sensor's state changes. (Sensors return a value; a range of values corresponds with an state.) States depend on the type of sensor.
 
-data sent with `event.detail`: `{type, voltage, ch0_raw, ch1_raw, value, state}`
 
-Possible `state` values for motion sensor:
-`close`: the sensor is within a few centimeters of an object;
-`midrange`: the sensor is within ca. 5-15 centimeters of an object;
-`clear`: there is no object within ca 15 centimeters of the sensor
 
-Possible `state` values for tilt sensor:
-`flat`, `up`, `down`, `left`, `right`
 
-### sensorvaluechange.sbrick
 
-Triggered when the value of a port's sensor changes. The sensors aren't very accurate, so most of the time you'll want to use the `sensorchange.sbrick` event instead. May come in usefull for the motion sensor. 
 
 
 ## Lower level information
 
 If you want to dive deeper into the communication
+https://social.sbrick.com/wiki/view/pageId/11/slug/the-sbrick-ble-protocol
 
 ### Services
 Device information - 180a
