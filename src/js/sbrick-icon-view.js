@@ -15,10 +15,10 @@
 	*/
 	const defineElms = function() {
 		view = document.getElementById('sbrick-icon-view');
-		const topLeftElm = view.querySelector('.sbrick-icon__port--top-left'),
-			bottomLeftElm = view.querySelector('.sbrick-icon__port--bottom-left'),
-			topRightElm = view.querySelector('.sbrick-icon__port--top-right'),
-			bottomRightElm = view.querySelector('.sbrick-icon__port--bottom-right');
+		const topLeftElm = view.querySelector('.sbrick-icon__port--top-left');
+		const bottomLeftElm = view.querySelector('.sbrick-icon__port--bottom-left');
+		const topRightElm = view.querySelector('.sbrick-icon__port--top-right');
+		const bottomRightElm = view.querySelector('.sbrick-icon__port--bottom-right');
 
 		portElms = [topLeftElm, bottomLeftElm, topRightElm, bottomRightElm];
 	};
@@ -29,8 +29,8 @@
 	* @returns {undefined}
 	*/
 	const portchangeHandler = function(e) {
-		const data = e.detail,
-			portElm = portElms[data.portId];
+		const data = e.detail;
+		const portElm = portElms[data.portId];
 
 		if (data.power === 0) {
 			portElm.classList.remove(activeClass);
@@ -46,8 +46,8 @@
 	* @returns {undefined}
 	*/
 	const sensorstartHandler = function(e) {
-		const data = e.detail,
-			portElm = portElms[data.portId];
+		const data = e.detail;
+		const portElm = portElms[data.portId];
 
 		portElm.classList.add(activeClass);
 	};
@@ -58,8 +58,8 @@
 	* @returns {undefined}
 	*/
 	const sensorstopHandler = function(e) {
-		const data = e.detail,
-			portElm = portElms[data.portId];
+		const data = e.detail;
+		const portElm = portElms[data.portId];
 
 		portElm.classList.remove(activeClass);
 	};

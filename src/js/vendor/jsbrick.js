@@ -108,6 +108,7 @@ window.JSBrick = (function() {
 			{ angle: 90,	power: 200,	powerMin: 180,	powerMax: 255}
 		];
 
+		// Map sensor types and states to their respective ranges
 		const sensorTypes = [
 			{ type: 'tilt',		min: 48,	max: 52},
 			{ type: 'motion',	min: 105,	max: 110}
@@ -166,7 +167,7 @@ window.JSBrick = (function() {
 		constructor( sbrick_name ) {
 			this.webbluetooth = new WebBluetooth();
 
-			// check if we're not trying to connect without https
+			// check if we're not trying to connect without https - Bluetooth only works on https
 			const url = window.location.href;
 			if (url.indexOf('https') !== 0 && url.indexOf('localhost') === -1) {
 				alert(`You need to visit this site on https in order for bluetooth to work.`)
@@ -694,8 +695,8 @@ window.JSBrick = (function() {
 				const sensorObj = this._getSensorObj(portId);
 				sensorObj.keepAlive = true;
 
-				const data = {portId},
-					event = new CustomEvent('sensorstart.sbrick', {detail: data});
+				const data = {portId};
+				const event = new CustomEvent('sensorstart.sbrick', {detail: data});
 				document.body.dispatchEvent(event);
 
 				return this._getNextSensorData(portId);
@@ -784,8 +785,8 @@ window.JSBrick = (function() {
 			// define the power range within which the drive does work
 			let powerPerc = 0;
 			if (power !== 0) {
-				const powerRange = MAX - MIN_VALUE_BELOW_WHICH_MOTOR_DOES_NOT_WORK,
-					relativePower = power - MIN_VALUE_BELOW_WHICH_MOTOR_DOES_NOT_WORK;
+				const powerRange = MAX - MIN_VALUE_BELOW_WHICH_MOTOR_DOES_NOT_WORK;
+				const relativePower = power - MIN_VALUE_BELOW_WHICH_MOTOR_DOES_NOT_WORK;
 				powerPerc = Math.round(100 * relativePower / powerRange);
 			}
 
@@ -1034,8 +1035,8 @@ window.JSBrick = (function() {
 		* @returns {object} portId, direction, power
 		*/
 		_getPortData(portId) {
-			const port = this.ports[portId],
-				data = {
+			const port = this.ports[portId];
+			const data = {
 					portId:    portId,
 					direction: port.direction,
 					power:     port.power,
@@ -1141,8 +1142,8 @@ window.JSBrick = (function() {
 				.then((sensorData) => {
 					// sensorData looks like this: { type, voltage, ch0_raw, ch1_raw, value }
 
-					const state = this.getSensorState(sensorData.value, sensorData.type),
-						{value, type} = sensorData;
+					const state = this.getSensorState(sensorData.value, sensorData.type);
+					const {value, type} = sensorData;
 
 					// add state to sensorData obj
 					sensorData.state = state;

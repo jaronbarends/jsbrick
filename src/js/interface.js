@@ -9,12 +9,12 @@
 
 	const SBRICKNAME = 'SBrick';
 
-	let body = document.body,
-		connectScreen,
-		connectBtn,
-		disconnectBtn,
-		controlPanel,
-		mySBrick;
+	let body = document.body;
+	let connectScreen;
+	let connectBtn;
+	let disconnectBtn;
+	let controlPanel;
+	let mySBrick;
 
 
 
@@ -205,7 +205,7 @@
 		// Per the specs, this has to be done IN RESPONSE TO A USER ACTION
 		connectBtn.addEventListener('click', connectHandler);
 		disconnectBtn.addEventListener('click', disconnectHandler);
-		console.log('v2');
+		console.log('v3');
 	};
 
 	// kick of the script when all dom content has loaded

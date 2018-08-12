@@ -102,9 +102,9 @@
 	* @returns {undefined}
 	*/
 	const sensorchangeHandler = function(e) {
-		const sensorData = e.detail,
-			sensorType = sensorData.type;// tilt | motion
-			sensorInterpration = mySBrick.getSensorState(sensorData.value, sensorType);
+		const sensorData = e.detail;
+		const sensorType = sensorData.type;// tilt | motion
+		const sensorInterpration = mySBrick.getSensorState(sensorData.value, sensorType);
 
 		document.getElementById('table-view__port-3-function').textContent = window.util.capitalize(sensorType);
 		document.getElementById('table-view__power--port-3').textContent = window.util.capitalize(sensorInterpration);
@@ -135,8 +135,8 @@
 		tableView = document.getElementById('table-view');
 
 		for (let i=0; i<4; i++) {
-			const power = document.getElementById('table-view__power--port-'+i),
-				direction = document.getElementById('table-view__direction--port-'+i);
+			const power = document.getElementById('table-view__power--port-'+i);
+			const direction = document.getElementById('table-view__direction--port-'+i);
 			elms.push( {
 				power,
 				direction

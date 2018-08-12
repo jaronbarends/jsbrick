@@ -76,9 +76,9 @@
 	* @returns {undefined}
 	*/
 	const updateActiveButton = function(data) {
-		const portId = data.portId,
-			power = data.power,
-			direction = data.direction;
+		const portId = data.portId;
+		const power = data.power;
+		const direction = data.direction;
 
 		let portName;
 		let ports = {
@@ -97,8 +97,8 @@
 
 		const container = document.querySelector('.btn-list[data-port="'+portName+'"]');
 		if (container) {
-			const func = container.getAttribute('data-function'),
-				links = Array.from(container.querySelectorAll('a'));
+			const func = container.getAttribute('data-function');
+			const links = Array.from(container.querySelectorAll('a'));
 			let hrefValue = getActiveHrefValue(func, data);
 
 			hrefValue = ''+hrefValue;// convert to string, for href has type of string
@@ -235,8 +235,8 @@
 	*/
 	const initPortControls = function() {
 		document.querySelectorAll('.btn-list').forEach((list) => {
-			const portName = list.getAttribute('data-port'),
-				func = list.getAttribute('data-function');
+			const portName = list.getAttribute('data-port');
+			const func = list.getAttribute('data-function');
 
 			list.querySelectorAll('a').forEach((button) => {
 				button.addEventListener('click', (e) => {
