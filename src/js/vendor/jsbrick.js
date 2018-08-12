@@ -166,6 +166,12 @@ window.JSBrick = (function() {
 		constructor( sbrick_name ) {
 			this.webbluetooth = new WebBluetooth();
 
+			// check if we're not trying to connect without https
+			const url = window.location.href;
+			if (url.indexOf('https') !== 0 && url.indexOf('localhost') === -1) {
+				alert(`You need to visit this site on https in order for bluetooth to work.`)
+			}
+
 			// export constants
 			this.NAME     = sbrick_name || "";
 			this.PORT0    = this.TOPLEFT     = PORTS[0].portId;

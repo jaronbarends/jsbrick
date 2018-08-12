@@ -179,7 +179,7 @@
 		const url = window.location.href;
 		if (url.indexOf('http') !== 0 || url.indexOf('localhost') > -1) {
 			enableDummyMode();
-			console.warn('NOTE: Using bluetooth-dummy mode');
+			console.warn(`NOTE: Using bluetooth-dummy mode \n(this is triggered when you're not on a webserver, or on localhost)`);
 		}
 	};
 
@@ -205,6 +205,7 @@
 		// Per the specs, this has to be done IN RESPONSE TO A USER ACTION
 		connectBtn.addEventListener('click', connectHandler);
 		disconnectBtn.addEventListener('click', disconnectHandler);
+		console.log('v2');
 	};
 
 	// kick of the script when all dom content has loaded
