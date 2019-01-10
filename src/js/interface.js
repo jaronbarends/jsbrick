@@ -177,9 +177,10 @@
 		// check if we're on http (and not on localhost); if so, use the real webbluetooth api
 		// otherwise, talk against the dummy
 		const url = window.location.href;
-		if (url.indexOf('http') !== 0 || url.indexOf('localhost') > -1) {
+		if (url.indexOf('https') !== 0 && url.indexOf('localhost') === -1) {
+			// not on https or localhost
 			enableDummyMode();
-			console.warn(`NOTE: Using bluetooth-dummy mode \n(this is triggered when you're not on a webserver, or on localhost)`);
+			console.warn(`Web bluetooth will only work on an https connection or localhost. \nThe app is now using bluetooth-dummy mode\n(all bluetooth calls will return a resolving promise)`);
 		}
 	};
 
@@ -205,7 +206,6 @@
 		// Per the specs, this has to be done IN RESPONSE TO A USER ACTION
 		connectBtn.addEventListener('click', connectHandler);
 		disconnectBtn.addEventListener('click', disconnectHandler);
-		console.log('v6');
 	};
 
 	// kick of the script when all dom content has loaded
