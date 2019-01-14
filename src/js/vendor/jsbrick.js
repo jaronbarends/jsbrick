@@ -169,12 +169,6 @@ window.JSBrick = (function() {
 		constructor(sbrickName) {
 			this.webbluetooth = new WebBluetooth();
 
-			// check if we're not trying to connect without https - Bluetooth only works on https
-			const url = window.location.href;
-			if (url.indexOf('https') !== 0 && url.indexOf('localhost') === -1) {
-				alert(`You need to visit this site on https in order for bluetooth to work.`)
-			}
-
 			// make constants available to outside world
 			// TODO: check which of these don't need to be defined in containing anonymous function
 			this.NAME     = sbrickName || "";
@@ -209,6 +203,8 @@ window.JSBrick = (function() {
 
 			// debug
 			this._debug         = false;
+
+			this._checkConditions();// check conditions like https etc
 		}
 
 
@@ -263,7 +259,7 @@ window.JSBrick = (function() {
 
 			// if the SBrick name is not defined it shows all the devices
 			// I don't like this solution, would be better to filter "by services"
-			if( this.NAME != "" ) {
+			if( this.NAME !== "" ) {
 				options.filters = [{
 					namePrefix: [ this.NAME ]
 				}];
@@ -606,6 +602,7 @@ window.JSBrick = (function() {
 					for (let i = 0; i < data.byteLength; i+=2) {
 						arrayData.push( data.getUint16(i, true) );
 					}
+					console.log(arrayData[2]);
 					let sensorData = {
 						type: 'unknown',
 						voltage: arrayData[0] >> 4,
@@ -859,6 +856,24 @@ window.JSBrick = (function() {
 
 
 		// PRIVATE FUNCTIONS
+
+
+		/**
+		* check conditions like https, chrome on windows which doesn't support sensor
+		* @returns {undefined}
+		*/
+		_checkConditions() {
+			// check if we're not trying to connect without https - Bluetooth only works on https
+			const url = window.location.href;
+			if (url.indexOf('https') !== 0 && url.indexOf('localhost') === -1) {
+				console.warn(`You need to visit this site on https in order for bluetooth to work.`)
+			}
+
+			// very basic check for chrome on windows
+			if (navigator.userAgent.match(/Windows.+Chrome\/[7-9]/) ) {
+				console.warn(`It looks like you're using Chrome on Windows.\nSensor data may not be working correctly.`);
+			}
+		};
 
 		/**
 		* Read some common Blutooth devices informations about the SBrick
@@ -1131,10 +1146,12 @@ window.JSBrick = (function() {
 		*/
 		_getNextSensorData(portId, sensorSeries = 'wedo') {
 			let sensorObj = this._getSensorObj(portId);
+			console.log('getnextsensordata');
 			return this.getSensor(portId, sensorSeries)
 				.then((sensorData) => {
 					// sensorData looks like this: { type, voltage, ch0_raw, ch1_raw, value }
 
+					console.log(sensorData);
 					const state = this.getSensorState(sensorData.value, sensorData.type);
 					const {value, type} = sensorData;
 

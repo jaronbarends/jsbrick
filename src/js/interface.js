@@ -109,20 +109,13 @@
 	*/
 	const updateConnectionState = function() {
 		if (mySBrick.isConnected()) {
-			// connectBtn.classList.remove('btn--is-busy', 'btn--start');
-			// connectBtn.classList.add('btn--stop');
-			// connectBtn.innerHTML = 'Disconnect';
 			connectScreen.classList.remove('is-busy');
 			connectScreen.classList.add('is-hidden');
 			controlPanel.classList.remove('is-hidden');
 		} else {
 			// disconnected
-			// connectBtn.classList.remove('btn--is-busy', 'btn--stop');
-			// connectBtn.classList.add('btn--start');
-			// connectBtn.innerHTML = 'Connect';
 			connectScreen.classList.add('is-busy');
 			connectScreen.classList.remove('is-hidden');
-			// connectBtn.classList.remove('is-hidden');
 			controlPanel.classList.add('is-hidden');
 		}
 	};
@@ -135,7 +128,6 @@
 	* @returns {undefined}
 	*/
 	const connectHandler = function() {
-		// connectBtn.classList.add('btn--is-busy');
 		connectSBrick();
 	};
 
@@ -146,7 +138,6 @@
 	* @returns {undefined}
 	*/
 	const disconnectHandler = function() {
-		// connectBtn.classList.add('btn--is-busy');
 		disconnectSBrick();
 	};
 	

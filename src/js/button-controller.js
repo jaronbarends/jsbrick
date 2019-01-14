@@ -3,10 +3,10 @@
 	// tell jshint about globals (they should remain commented out)
 	/* globals SBrick */ //Tell jshint SBrick exists as global var
 
-	let mySBrick,
-		sensorTimer,
-		sensorTimeoutIsCancelled = false,
-		sensorSwitch;
+	let mySBrick;
+	let sensorTimer;
+	let sensorTimeoutIsCancelled = false;
+	let sensorSwitch;
 
 
 
@@ -171,9 +171,9 @@
 	const toggleSensor = function() {
 		let portId = mySBrick.BOTTOMRIGHT;
 		if (sensorSwitch.classList.contains('btn--is-active')) {
-			stopSensor(portId);
+			mySBrick.stopSensor(portId);
 		} else {
-			startSensor(portId);
+			mySBrick.startSensor(portId);
 		}
 	};
 
@@ -183,11 +183,11 @@
 	* @returns {undefined}
 	*/
 	const startSensor = function(portId) {
-		sensorTimeoutIsCancelled = false;
-		getSensorData(portId);
+		// sensorTimeoutIsCancelled = false;
+		// getSensorData(portId);
 
-		const event = new CustomEvent('sensorstart.jsbrick', {detail: {portId}});
-		document.body.dispatchEvent(event);
+		// const event = new CustomEvent('sensorstart.jsbrick', {detail: {portId}});
+		// document.body.dispatchEvent(event);
 	};
 
 
@@ -199,10 +199,10 @@
 		// sensorData timeout is only set when the promise resolves
 		// but in the time the promise is pending, there is no timeout to cancel
 		// so let's set a var that has to be checked before calling a new setTimeout
-		sensorTimeoutIsCancelled = true;
+		// sensorTimeoutIsCancelled = true;
 
-		const event = new CustomEvent('sensorstop.jsbrick', {detail: {portId}});
-		document.body.dispatchEvent(event);
+		// const event = new CustomEvent('sensorstop.jsbrick', {detail: {portId}});
+		// document.body.dispatchEvent(event);
 	};
 
 
