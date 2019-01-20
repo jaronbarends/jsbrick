@@ -63,7 +63,7 @@
 	var connectSBrick = function() {
 		setPageBusy();
 		setConnectScreenBusy();
-		mySBrick.connect(SBRICKNAME)
+		mySBrick.connect()
 			.then( () => {
 				// SBrick now is connected
 				setPageIdle();
@@ -85,7 +85,7 @@
 	*/
 	var disconnectSBrick = function() {
 		setPageBusy();
-		mySBrick.disconnect(SBRICKNAME)
+		mySBrick.disconnect()
 		.then( (value) => {
 			// SBrick now is disconnected
 			setPageIdle();
@@ -183,8 +183,8 @@
 	* @returns {undefined}
 	*/
 	const init = function() {
-		// window.mySBrick = window.mySBrick || new SBrickExtended();
-		window.mySBrick = window.mySBrick || new JSBrick();
+		window.mySBrick = window.mySBrick || new JSBrick(SBRICKNAME);
+		window.mySBrick.NAME = SBRICKNAME;
 		mySBrick = window.mySBrick;
 		connectScreen = document.getElementById('connect-screen');
 		connectBtn = document.getElementById('connect-btn');

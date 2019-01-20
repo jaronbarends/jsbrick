@@ -268,7 +268,7 @@
 
 		document.getElementById('stop-all').addEventListener('click', () => {
 			mySBrick.stopAll();
-			stopSensor(mySBrick.BOTTOMRIGHT);
+			// stopSensor(mySBrick.BOTTOMRIGHT);
 		});
 	};
 

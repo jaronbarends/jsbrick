@@ -39,7 +39,7 @@ Include required scripts
 
 ## Usage
 
-You have to create an instance of the JSBrick class - this way is possible to connect multiple Sbricks at the same time. A lot of methods return a [promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises).
+You have to create an instance of the JSBrick class - this way is it's possible to connect multiple Sbricks at the same time. A lot of methods return a [promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises).
 
 ### Connecting with the SBrick
 
@@ -79,7 +79,7 @@ let isConnected = mySBrick.isConnected(); // returns true or false
 ## Port numbering
 
 When you want to send data to or receive data from the SBrick, you'll need to specify which of the ports you want to target. The SBrick's ports are numbered 0-3, like shown below. To make things easier, every JSBrick instance has constants for the ports's ids: `mySBrick.TOPLEFT`, `mySBrick.TOPRIGHT`, `mySBrick.BOTTOMLEFT`, `mySBrick.BOTTOMRIGHT`.
-
+```
           TOP    TOP
           LEFT 0 RIGHT 2
 ┌────────┐─────────────┐
@@ -89,6 +89,7 @@ When you want to send data to or receive data from the SBrick, you'll need to sp
 |               | LEFT 1  RIGHT 3|
 |               |                |
 └───────────────┘────────────────┘
+```
 
 ## Controlling motors and lights
 
@@ -108,6 +109,8 @@ let data = {
 mySBrick.setLights(data);
 ```
 
+Returns a `promise` that returns object `{portId, direction, power (0-255!), mode}`. (This is the promise `sbrick.drive` returns)
+
 ### Drive motor
 
 ```javascript
@@ -118,6 +121,8 @@ let data = {
 };
 mySBrick.setDrive(data);
 ```
+
+Returns a `promise` that returns object `{portId, direction, power (0-255!), mode}`. (This is the promise `sbrick.drive` returns)
 
 ### Servo motor
 
@@ -130,9 +135,26 @@ let data = {
 mySBrick.setServo(data);
 ```
 
+Returns a `promise` that returns object `{portId, direction, power (0-255!), mode}`. (This is the promise `sbrick.drive` returns)
+
 Be aware that the Lego's servo motors only allow 7 angles per 90°. These angles are in increments of approximately 13°, i.e. 13, 26, 39, 52, 65, 78, 90. `setServo` calculates the supported angle that's closest to the value of `data`'s `angle`-property
 
 All of these drive methods return an object with the new settings.
+
+
+### Stop a specific port
+
+Pass either one port or an array of ports
+```javascript
+	mySBrick.stop( mySBrick.TOPLEFT ); // stops top left port
+	mySBrick.stop( [mySBrick.TOPLEFT, mySBrick.BOTTOMLEFT] ); // stops top left and bottom left ports
+```
+	
+### Stop all ports at once.
+
+```javascript
+	mySBrick.stopAll();
+```
 
 
 ## Start retrieving sensor values
@@ -143,6 +165,8 @@ For both the tilt and motion sensor:
 const portId = mySBrick.TOPLEFT;
 mySbrick.startSensor(portId);
 ```
+
+returns promise that returns `undefined`
 
 This will start a stream of sensor measurements. For every new measurement, a `sensorchange.jsbrick` event is dispatched on the body. You can track these values like this:
 
@@ -171,7 +195,7 @@ mySbrick.stopSensor(portId);
 
 
 
-Note that under the hood, the SBrick uses one single command to send data to the ports. You can send this command using JSBrick's `drive` method. To retrieve a single value from sensor,  However, JSBrick also has some convenience functions 
+Note that under the hood, the SBrick uses one single command to send data to the ports. You can send this command using JSBrick's `drive` method. To retrieve a single value from a sensor, however, JSBrick also has some convenience functions 
 
 
 There is also another command that controls all types, _quick drive_, which supposedly has lower latency.)
@@ -179,17 +203,25 @@ There is also another command that controls all types, _quick drive_, which supp
 
 ## Additional events
 
-### sensorstart.sbrick
+JSBrick sends several events that other scripts can listen to. All of these events are namespaced with `.jsbrick` and are triggerd on the `document.body`.
+Scripts can listen for them like this:
+```javascript
+body.addEventListener('eventname.jsbrick', (e) => {
+	// do stuff with the event here
+});
+```
 
-Triggered on `document.body` when a stream of sensor measurements is started
+### sensorstart.jsbrick
+
+Triggered when a stream of sensor measurements is started
 data sent with `event.detail`: `{portId}`
 
-### sensorstop.sbrick
+### sensorstop.jsbrick
 
-Triggered on `document.body` when a stream of sensor measurements is stopped
+Triggered when a stream of sensor measurements is stopped
 data sent with `event.detail`: `{portId}`
 
-### sensorchange.sbrick
+### sensorchange.jsbrick
 
 Triggered when a port's sensor's state changes. (Sensors return a value; a range of values corresponds with an state.) States depend on the type of sensor.
 
@@ -203,9 +235,9 @@ Possible `state` values for motion sensor:
 Possible `state` values for tilt sensor:
 `flat`, `up`, `down`, `left`, `right`
 
-### sensorvaluechange.sbrick
+### sensorvaluechange.jsbrick
 
-Triggered when the value of a port's sensor changes. The sensors aren't very accurate, so most of the time you'll want to use the `sensorchange.sbrick` event instead. May come in usefull for the motion sensor. 
+Triggered when the value of a port's sensor changes. The sensors aren't very accurate, so most of the time you'll want to use the `sensorchange.jsbrick` event instead. May come in usefull for the motion sensor. 
 
 
 
@@ -221,7 +253,7 @@ mySBrick.getBattery()
     } );
 
 // Get temperature in celsius or fahrenheit
-let fahrenheit = false; // default is false: C°
+let fahrenheit = false; // default is false: °C
 mySBrick.getTemp(fahrenheit)
     .then( temp => {
         console.log(temp + fahrenheit ? ' °F' : ' °C');
